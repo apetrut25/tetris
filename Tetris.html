@@ -465,6 +465,20 @@
             piece.shape = newShape;
         }
 
+        function rotateCounterClockwise(piece) {
+            const N = piece.shape.length;
+            const M = piece.shape[0].length;
+            const newShape = Array.from({ length: M }, () => Array(N).fill(0));
+            for (let r = 0; r < N; r++) {
+                for (let c = 0; c < M; c++) {
+                    if (piece.shape[r][c]) {
+                        newShape[M - 1 - c][r] = piece.shape[r][c];
+                    }
+                }
+            }
+            piece.shape = newShape;
+        }
+
         // Collision detection
         function checkCollision(piece, board, offsetX = 0, offsetY = 0) {
             const shape = piece.shape;
@@ -630,8 +644,14 @@
         }
 
         // Piece movement
+        let horizontalMoveTimeout; // Timer to prevent multiple horizontal movements
+
         function movePiece(dx, dy) {
             if (gameOver || paused) return;
+
+            if (dx !== 0 && horizontalMoveTimeout) {
+                return; // If a horizontal movement is already in progress, do nothing
+            }
 
             if (!checkCollision(currentPiece, board, dx, dy)) {
                 currentPiece.x += dx;
@@ -656,35 +676,57 @@
                     }
                 }
             }
+
+            if (dx !== 0) {
+                horizontalMoveTimeout = setTimeout(() => {
+                    horizontalMoveTimeout = null; // Allow horizontal movement again after the timeout
+                }, 80); // Adjust the timeout value as needed (e.g., 50ms, 80ms, 100ms)
+            }
         }
 
-        function attemptRotate() {
+        let rotateTimeout; // Timer to prevent multiple rotations
+
+        function attemptRotate(direction = 1) {
             if (gameOver || paused) return;
-            const originalShape = currentPiece.shape.map(row => row.slice()); 
+
+            if (rotateTimeout) {
+                return; // If a rotation is already in progress, do nothing
+            }
+
+            const originalShape = currentPiece.shape.map(row => row.slice());
             const originalX = currentPiece.x;
             const originalY = currentPiece.y;
 
-            rotate(currentPiece);
+            if (direction === 1) {
+                rotate(currentPiece); // Rotate clockwise
+            } else {
+                rotateCounterClockwise(currentPiece); // Rotate counter-clockwise
+            }
+
             if (audioInitialized) playSound(rotateSound, "E4", "16n");
 
             let offset = 0;
             if (checkCollision(currentPiece, board)) {
-                offset = currentPiece.x < COLS / 2 ? 1 : -1; 
+                offset = currentPiece.x < COLS / 2 ? 1 : -1;
                 if (!checkCollision(currentPiece, board, offset, 0)) {
                     currentPiece.x += offset;
-                } else if (!checkCollision(currentPiece, board, -offset, 0)) { 
-                     currentPiece.x -= offset;
-                } else if (!checkCollision(currentPiece, board, offset*2, 0)) { 
-                     currentPiece.x += offset*2;
-                } else if (!checkCollision(currentPiece, board, -offset*2, 0)) {
-                     currentPiece.x -= offset*2;
+                } else if (!checkCollision(currentPiece, board, -offset, 0)) {
+                    currentPiece.x -= offset;
+                } else if (!checkCollision(currentPiece, board, offset * 2, 0)) {
+                    currentPiece.x += offset * 2;
+                } else if (!checkCollision(currentPiece, board, -offset * 2, 0)) {
+                    currentPiece.x -= offset * 2;
                 }
-                else { 
+                else {
                     currentPiece.shape = originalShape;
                     currentPiece.x = originalX;
                     currentPiece.y = originalY;
                 }
             }
+
+            rotateTimeout = setTimeout(() => {
+                rotateTimeout = null; // Allow rotation again after the timeout
+            }, 150); // Adjust the timeout value as needed (e.g., 100ms, 150ms, 200ms)
         }
 
         // Game flow
@@ -788,45 +830,57 @@
 
         // Event Listeners
         document.addEventListener('keydown', (e) => {
-            if (gameOver && e.key !== 'Enter' && e.key !== ' ') return; 
-            if (!currentPiece && e.key !== 'Enter' && e.key !== ' ' && !gameOver) return; 
+            if (gameOver && e.key === ' '){
+                e.preventDefault();
+                return;
+            }
 
-            if (e.key === 'Enter' || e.key === ' ') {
-                 if (gameOver || !gameLoopId && !paused) { 
+            if (gameOver && e.key !== 'Enter') return; // Allow only Enter to restart when game is over
+            if (!currentPiece && e.key !== 'Enter' && !gameOver) return; // Prevent actions if no piece is active
+
+            if (e.key === 'Enter') {
+                if (gameOver || (!gameLoopId && !paused)) {
                     startGame();
                     e.preventDefault();
                     return;
-                 }
+                }
             }
-            
-            if (paused && e.key !== 'p' && e.key !== 'P') return; 
+
+            if (paused && e.key.toLowerCase() !== 'p') return; // Allow only 'P' to unpause when paused
 
             switch (e.key.toLowerCase()) { // Use toLowerCase for case-insensitivity
                 case 'arrowleft':
-                case 'a':
                     movePiece(-1, 0);
                     e.preventDefault();
                     break;
                 case 'arrowright':
-                case 'd':
                     movePiece(1, 0);
                     e.preventDefault();
                     break;
                 case 'arrowdown':
-                case 's':
-                    if (!isFastDropping) { // Prevent re-triggering if already fast dropping via key repeat
+                    //document.getElementById('d-pad-down').dispatchEvent(new Event('mousedown')); // Trigger on-screen button
+                    if (!isFastDropping) {
                         isFastDropping = true;
                         dropCounter = dropInterval; // Force immediate drop on first press
                     }
+                    movePiece(0, 1); // Move down immediately
                     e.preventDefault();
                     break;
                 case 'arrowup':
                 case 'w':
-                case ' ': 
                     attemptRotate();
                     e.preventDefault();
                     break;
-                case 'p': 
+                case 'a': // Handle "A" key
+                    attemptRotate(-1); // Rotate counter-clockwise
+                    e.preventDefault();
+                    break;
+                case 'b': // Handle "B" key
+                case ' ':
+                    attemptRotate(1); // Rotate clockwise
+                    e.preventDefault();
+                    break;
+                case 'p':
                     pauseGame();
                     e.preventDefault();
                     break;
@@ -835,11 +889,11 @@
 
         document.addEventListener('keyup', (e) => {
             if (e.key.toLowerCase() === 'arrowdown' || e.key.toLowerCase() === 's') {
+                //document.getElementById('d-pad-down').dispatchEvent(new Event('mouseup')); // Trigger on-screen button
                 isFastDropping = false;
                 e.preventDefault();
             }
         });
-
 
         startButton.addEventListener('click', () => {
             startGame();
@@ -861,8 +915,8 @@
 
 
         document.getElementById('d-pad-up').addEventListener('click', () => attemptRotate()); 
-        document.getElementById('action-a').addEventListener('click', () => attemptRotate()); 
-        document.getElementById('action-b').addEventListener('click', () => attemptRotate()); // B button for rotate
+        document.getElementById('action-a').addEventListener('click', () => attemptRotate(-1));
+        document.getElementById('action-b').addEventListener('click', () => attemptRotate(1)); // B button for rotate
 
 
         // Initialization
