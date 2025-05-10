@@ -930,9 +930,25 @@
         dPadDown.addEventListener('mousedown', () => dPadDownTouchHandler(true));
         dPadDown.addEventListener('mouseup', () => dPadDownTouchHandler(false));
         dPadDown.addEventListener('mouseleave', () => dPadDownTouchHandler(false));
-        dPadDown.addEventListener('touchstart', (e) => { e.preventDefault(); dPadDownTouchHandler(true);}, { passive: false });
-        dPadDown.addEventListener('touchend', (e) => { e.preventDefault(); dPadDownTouchHandler(false);}, { passive: false });
+// Modify this touchstart listener
+        dPadDown.addEventListener('touchstart', (e) => {
+            // Only prevent default if dPadDownTouchHandler will actually engage for gameplay fast drop.
+            // If isNameEntryActive is true (or other non-gameplay states),
+            // dPadDownTouchHandler returns early. In those cases, we want the click event to fire.
+            if (!(gameQuitted || paused || gameOver || isHighScoreScreenActive || isNameEntryActive)) {
+                e.preventDefault();
+            }
+            dPadDownTouchHandler(true);
+        }, { passive: false });
 
+        // Modify this touchend listener for consistency
+        dPadDown.addEventListener('touchend', (e) => {
+            // Apply the same conditional preventDefault logic
+            if (!(gameQuitted || paused || gameOver || isHighScoreScreenActive || isNameEntryActive)) {
+                e.preventDefault();
+            }
+            dPadDownTouchHandler(false);
+        }, { passive: false });
 
         const highScoreCategories = ["Most Points", "Highest Level", "Most Tetrises", "Most Triple Lines", "Most Double Lines", "Most Single Lines"];
         let currentCategoryIndex = 0;
