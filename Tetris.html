@@ -4,60 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Game Boy Tetris - Mobile</title>
-    <!-- iOS Specific Meta Tags for "Add to Home Screen" -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- or "default", "black" -->
-    <meta name="apple-mobile-web-app-title" content="Tetris GB"> <!-- Title for the app icon -->
-
-    <!-- App Icons (VERY IMPORTANT for a good look) -->
-    <!-- Create icons of these sizes and place them in your game's root directory or an /icons/ folder -->
-    <link rel="apple-touch-icon" href="apple-touch-icon-57x57.png"> <!-- For non-Retina iPhone (iOS <= 6) -->
-    <link rel="apple-touch-icon" sizes="72x72" href="apple-touch-icon-72x72.png"> <!-- For non-Retina iPad (iOS <= 6) -->
-    <link rel="apple-touch-icon" sizes="76x76" href="apple-touch-icon-76x76.png"> <!-- For non-Retina iPad (iOS >= 7) -->
-    <link rel="apple-touch-icon" sizes="114x114" href="apple-touch-icon-114x114.png"> <!-- For Retina iPhone (iOS <= 6) -->
-    <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png"> <!-- For Retina iPhone (iOS >= 7) -->
-    <link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-144x144.png"> <!-- For Retina iPad (iOS <= 6) -->
-    <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png"> <!-- For Retina iPad (iOS >= 7) -->
-    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png"> <!-- For iPhone 6 Plus, 6s Plus, 7 Plus, 8 Plus -->
-    <!-- You can also add a general one, iOS will pick the best match -->
-    <link rel="apple-touch-icon" href="apple-touch-icon.png">
-
-
-    <!-- (Optional but good practice) Web App Manifest -->
-    <link rel="manifest" href="manifest.json">
-
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <style>
         html {
-            height: 100%; /* Ensure html element takes full height */
-            overflow: hidden; /* Prevent scroll on html too */
+            height: 100%;
+            overflow: hidden;
         }
 
         body {
-            background-color: #222; /* Neutral background for letterboxing */
+            background-color: #222;
             display: flex;
             align-items: center;
             justify-content: center;
-            /* Use 100% of html, which should be visual viewport after html fix */
             width: 100%;
             height: 100%;
             margin: 0;
             font-family: 'Press Start 2P', cursive;
             color: #0F380F;
-            overflow: hidden; /* Prevent scrolling of the body */
-            overscroll-behavior: none; /* Prevent pull-to-refresh on mobile */
+            overflow: hidden;
+            overscroll-behavior: none;
         }
 
         #scaler-wrapper {
-            /* Dimensions will be set by JS to EFFECTIVE_DESIGN_WIDTH/HEIGHT */
-            position: absolute; /* Keeps it from affecting body flow if body is flex */
+            position: absolute;
             left: 50%;
             top: 50%;
             transform-origin: center center;
-            /* transform: translate(-50%, -50%) scale(var(--scale-factor)); Will be set by JS */
-            background-color: #d3d3d3; /* Original body background, now on wrapper */
-            /* Overflow hidden on the wrapper can help if content slightly bleeds during scaling calc */
+            background-color: #d3d3d3;
             overflow: hidden;
         }
 
@@ -69,9 +43,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            width: 100%; /* Fill the scaler-wrapper */
-            height: 100%; /* Fill the scaler-wrapper */
-            box-sizing: border-box; /* Ensure padding is included in width/height */
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
         }
 
         #screen-bezel {
@@ -80,8 +54,8 @@
             border-radius: 8px;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
             margin-bottom: 20px;
-            width: calc(200px + 120px + 20px + 2*2px); /* board + info + screen padding + board border */
-            max-width: calc(100% - 30px); /* Ensure bezel fits in shell padding */
+            width: calc(200px + 120px + 20px + 2*2px); /* board + info + screen padding + board border = 344px */
+            max-width: calc(100% - 30px);
             box-sizing: border-box;
         }
 
@@ -94,10 +68,8 @@
             flex-direction: column;
             align-items: center;
             box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
-            /* Fixed width based on content: board (200) + info (120) + internal padding (10*2=20) */
-            width: calc(200px + 120px + 20px);
-             /* Height calculated for desktop view: Board (360) + title (20) + internal padding (20) + message space (30) */
-            height: calc(360px + 20px + 20px + 30px); /* Approx 430px for game content area */
+            width: calc(200px + 120px + 20px); /* 340px */
+            height: calc(360px + 20px + 20px + 30px); /* Approx 430px for game content area (desktop) */
             overflow: hidden;
             position: relative;
             box-sizing: border-box;
@@ -128,7 +100,7 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            height: 100%; /* Takes height of gameboy-screen content area */
+            height: 100%;
             box-sizing: border-box;
         }
 
@@ -149,15 +121,18 @@
             text-align: center;
         }
 
+        /* System Controls (Start, Pause, etc.) */
         #controls {
-            margin-top: 10px;
             display: flex;
             gap: 5px;
             flex-wrap: wrap;
             justify-content: center;
+            margin-top: 10px; /* Default margin */
+            width: 100%;
+            max-width: 340px; /* Match screen bezel width roughly */
         }
 
-        #controls button, .action-button {
+        #controls button, .action-button { /* Keep .action-button here for general button styling if needed */
             font-family: 'Press Start 2P', cursive;
             background-color: #555;
             color: #ddd;
@@ -169,7 +144,7 @@
             font-size: 10px;
             transition: all 0.1s ease;
             text-transform: uppercase;
-            user-select: none; /* Prevent text selection on tap */
+            user-select: none;
         }
 
         #controls button:active, .action-button:active {
@@ -177,6 +152,56 @@
             box-shadow: 0 1px 0 #333;
             transform: translateY(1px);
         }
+
+        /* Wrapper for D-Pad and A/B Buttons */
+        #main-game-inputs {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 300px; /* Fixed width for desktop */
+            margin-top: 20px; /* Default margin */
+        }
+
+        #d-pad {
+            display: grid;
+            grid-template-columns: repeat(3, 40px);
+            grid-template-rows: repeat(3, 40px);
+            gap: 2px;
+        }
+
+        .d-pad-btn {
+            background-color: #333;
+            border: 1px solid #222;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9BBC0F;
+            font-size: 18px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .d-pad-btn:active { background-color: #222; }
+        #d-pad-up { grid-column: 2; grid-row: 1; }
+        #d-pad-left { grid-column: 1; grid-row: 2; }
+        #d-pad-center { grid-column: 2; grid-row: 2; background-color: #444; }
+        #d-pad-right { grid-column: 3; grid-row: 2; }
+        #d-pad-down { grid-column: 2; grid-row: 3; }
+
+        #action-buttons {
+            display: flex;
+            flex-direction: column; /* A above B by default */
+            gap: 10px;
+        }
+        /* Specific styling for .action-button used for A/B */
+        #action-buttons .action-button {
+            width: 60px; height: 60px; border-radius: 50%;
+            background-color: #a04050; color: #fff;
+            font-size: 20px; line-height: 56px;
+            text-align: center; user-select: none;
+        }
+        #action-buttons .action-button.b { background-color: #903040; }
+
 
         #message-box {
             position: absolute;
@@ -213,48 +238,6 @@
 
         .hidden { display: none !important; }
 
-        #gameboy-controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 300px;
-            margin-top: 20px;
-        }
-
-        #d-pad {
-            display: grid;
-            grid-template-columns: repeat(3, 40px);
-            grid-template-rows: repeat(3, 40px);
-            gap: 2px;
-        }
-
-        .d-pad-btn {
-            background-color: #333;
-            border: 1px solid #222;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #9BBC0F;
-            font-size: 18px;
-            cursor: pointer;
-            user-select: none;
-        }
-        .d-pad-btn:active { background-color: #222; }
-        #d-pad-up { grid-column: 2; grid-row: 1; }
-        #d-pad-left { grid-column: 1; grid-row: 2; }
-        #d-pad-center { grid-column: 2; grid-row: 2; background-color: #444; }
-        #d-pad-right { grid-column: 3; grid-row: 2; }
-        #d-pad-down { grid-column: 2; grid-row: 3; }
-
-        #action-buttons { display: flex; flex-direction: column; gap: 10px; }
-        .action-button {
-            width: 60px; height: 60px; border-radius: 50%;
-            background-color: #a04050; color: #fff;
-            font-size: 20px; line-height: 56px; /* Adjusted for vertical centering */
-            text-align: center; user-select: none;
-        }
-        .action-button.b { background-color: #903040; }
 
         #high-scores {
             width: 100%; height: 100%; display: flex;
@@ -266,7 +249,7 @@
         #high-scores-content {
             font-size: 9px;
             line-height: 1.3;
-            max-height: calc(100% - 80px); /* Adjust based on title and instructions height */
+            max-height: calc(100% - 80px);
             overflow-y: auto;
             width: 95%;
             text-align: left;
@@ -291,27 +274,66 @@
 
         /* Media query primarily for internal layout changes, scaling is handled by JS */
         @media (max-width: 600px) {
-            /* #gameboy-shell { padding: 10px; } No longer scaling here */
-            /* #screen-bezel { padding: 10px; } */
             #gameboy-screen {
                 /* Height adjustment for stacked game-info */
-                height: calc(360px + 20px + 10px + 185px + 20px); /* Board + top_pad + info_margin + info_approx_h + bottom_pad */
+                height: calc(360px + 20px + 10px + 185px + 20px); /* Board + top_pad + info_margin + info_approx_h + bottom_pad = 595px*/
             }
-            #game-container { flex-direction: column; align-items: center; }
+            #game-container {
+                flex-direction: column;
+                align-items: center; /* This should center the canvas and game-info block */
+            }
             #game-info {
                 width: 100%;
                 padding-left: 0;
                 margin-top: 10px;
                 text-align: center;
-                height: auto; /* Allow natural height */
+                height: auto;
             }
             #game-info span { text-align: center; }
             #next-piece-container { margin: 10px auto; }
             #next-piece-canvas { margin: 5px auto; }
-            #gameboy-controls { flex-direction: column; gap: 15px; width: 100%; align-items: center; }
-            #controls { order: 2; } /* Buttons like Start, Pause */
-            #d-pad { order: 1; }
-            #action-buttons { order: 0; flex-direction: row; }
+
+            /* Ordering and styling for control groups */
+            #controls { /* System buttons: START, PAUSE, etc. */
+                order: 1; /* Below screen-bezel, but above main-game-inputs */
+                margin-top: 15px;
+                /* width: 90%; Ensure it can wrap and center */
+            }
+            #controls button {
+                font-size: 9px;
+                padding: 7px 9px; /* Slightly smaller padding */
+            }
+
+            #main-game-inputs {
+                order: 2; /* D-pad and A/B buttons below system controls */
+                width: 95%; /* More responsive width */
+                max-width: 340px; /* Cap width */
+                margin-top: 15px;
+                justify-content: space-around; /* Give a bit more space around than between */
+            }
+
+            #d-pad {
+                transform: scale(0.95); /* Slightly smaller */
+                transform-origin: center;
+            }
+            .d-pad-btn { /* Target buttons inside d-pad for size */
+                width: 38px;  /* Adjusted size */
+                height: 38px; /* Adjusted size */
+                font-size: 17px;/* Adjusted size */
+            }
+
+            #action-buttons {
+                flex-direction: column; /* Stack A/B vertically is default, ensure it for mobile if desired */
+                gap: 8px;
+                transform: scale(0.95); /* Slightly smaller */
+                transform-origin: center;
+            }
+            #action-buttons .action-button { /* Target A/B buttons for size */
+                width: 55px;  /* Adjusted size */
+                height: 55px; /* Adjusted size */
+                font-size: 18px; /* Adjusted size */
+                line-height: 51px; /* Adjusted line height */
+            }
         }
     </style>
 </head>
@@ -342,34 +364,41 @@
                         <h2>High Scores</h2>
                         <div id="high-scores-content"></div>
                         <div id="high-score-instructions">
-                            <div>◀ Left: Prev Cat.</div>
-                            <div>▶ Right: Next Cat.</div>
-                            <div>'B' Key: Close</div>
+                            <div>◀ D-Pad Left: Prev Cat.</div>
+                            <div>▶ D-Pad Right: Next Cat.</div>
+                            <div>'B' Button: Close</div>
+                            <div class="name-entry-instructions hidden">
+                                D-Pad ↑↓: Change Letter<br>
+                                D-Pad → / 'A': Next Letter<br>
+                                'B': Confirm Name (at end)<br>
+                                D-Pad ←: Prev Letter<br>
+                            </div>
                         </div>
                     </div>
                     <div id="message-box" class="hidden"></div>
                     <div id="bottom-message-box" class="hidden"></div>
                 </div>
             </div>
-
+            <!-- System Controls -->
             <div id="controls">
                 <button id="start-button">START</button>
                 <button id="pause-button">PAUSE</button>
                 <button id="high-scores-button">SCORES</button>
                 <button id="mute-button">MUSIC: ON</button>
-                <button id="quit-button">QUIT</button> <!-- New Quit Button -->
+                <button id="quit-button">QUIT</button>
             </div>
-            <div id="gameboy-controls">
+            <!-- Main Game Inputs (D-Pad and Action Buttons) -->
+            <div id="main-game-inputs">
                 <div id="d-pad">
-                    <button class="d-pad-btn" id="d-pad-up" title="Rotate">▲</button>
-                    <button class="d-pad-btn" id="d-pad-left" title="Move Left / Prev Category">◀</button>
+                    <button class="d-pad-btn" id="d-pad-up" title="Rotate / Change Letter Up">▲</button>
+                    <button class="d-pad-btn" id="d-pad-left" title="Move Left / Prev Category / Prev Letter">◀</button>
                     <div class="d-pad-btn" id="d-pad-center"></div>
-                    <button class="d-pad-btn" id="d-pad-right" title="Move Right / Next Category">▶</button>
-                    <button class="d-pad-btn" id="d-pad-down" title="Move Down">▼</button>
+                    <button class="d-pad-btn" id="d-pad-right" title="Move Right / Next Category / Next Letter">▶</button>
+                    <button class="d-pad-btn" id="d-pad-down" title="Move Down / Change Letter Down">▼</button>
                 </div>
                 <div id="action-buttons">
-                    <button class="action-button b" id="action-b" title="Rotate Clockwise (B) / Close Scores">B</button>
-                    <button class="action-button a" id="action-a" title="Rotate Counter-Clockwise (A)">A</button>
+                    <button class="action-button b" id="action-b" title="Rotate Clockwise (B) / Close Scores / Confirm Name">B</button>
+                    <button class="action-button a" id="action-a" title="Rotate Counter-Clockwise (A) / Next Letter">A</button>
                 </div>
             </div>
         </div>
@@ -389,7 +418,7 @@
         const startButton = document.getElementById('start-button');
         const pauseButton = document.getElementById('pause-button');
         const muteButton = document.getElementById('mute-button');
-        const quitButton = document.getElementById('quit-button'); // Quit button DOM element
+        const quitButton = document.getElementById('quit-button');
         const infoSinglesElement = document.getElementById('info-singles');
         const infoDoublesElement = document.getElementById('info-doubles');
         const infoTriplesElement = document.getElementById('info-triples');
@@ -397,13 +426,16 @@
         const gameContainer = document.getElementById('game-container');
         const highScoresDiv = document.getElementById('high-scores');
         const highScoresContent = document.getElementById('high-scores-content');
+        const highScoreInstructionsDiv = document.getElementById('high-score-instructions');
+        const nameEntryInstructionsDiv = highScoreInstructionsDiv.querySelector('.name-entry-instructions');
+
         const dPadUp = document.getElementById('d-pad-up');
         const dPadLeft = document.getElementById('d-pad-left');
         const dPadRight = document.getElementById('d-pad-right');
         const dPadDown = document.getElementById('d-pad-down');
         const actionA = document.getElementById('action-a');
         const actionB = document.getElementById('action-b');
-        const gameboyShell = document.getElementById('gameboy-shell'); // For quit functionality
+        const gameboyShell = document.getElementById('gameboy-shell');
 
         // Game constants & state
         const COLS = 10; const ROWS = 18; const BLOCK_SIZE = 20;
@@ -422,7 +454,7 @@
         let dropCounter, dropInterval, gameOver, paused, gameLoopId;
         let audioInitialized = false, isFastDropping = false, isHighScoreScreenActive = false;
         let isNameEntryActive = false; let isMusicMuted = false;
-        let gameQuitted = false; // Flag for quit state
+        let gameQuitted = false;
 
         // Sound (Tone.js)
         let moveSound, rotateSound, landSound, lineClearSound, tetrisSound, gameOverSound, levelUpSound;
@@ -481,7 +513,7 @@
             }
         }
 
-        // Game Logic
+        // Game Logic (mostly unchanged)
         function createBoard() { return Array.from({ length: ROWS }, () => Array(COLS).fill(0)); }
         function getRandomPiece() {
             const randIndex = Math.floor(Math.random() * PIECE_KEYS.length);
@@ -491,36 +523,24 @@
             return { shape, color: pieceData.color, x: Math.floor(COLS / 2) - Math.floor(shape[0].length / 2), y: 0 };
         }
         function rotate(piece) {
-            const N = piece.shape.length;
-            const M = piece.shape[0].length;
+            const N = piece.shape.length; const M = piece.shape[0].length;
             const newShape = Array.from({ length: M }, () => Array(N).fill(0));
-            for (let r = 0; r < N; r++) {
-                for (let c = 0; c < M; c++) {
-                    if (piece.shape[r][c]) newShape[c][N - 1 - r] = piece.shape[r][c];
-                }
-            }
+            for (let r = 0; r < N; r++) { for (let c = 0; c < M; c++) { if (piece.shape[r][c]) newShape[c][N - 1 - r] = piece.shape[r][c]; } }
             piece.shape = newShape;
         }
         function rotateCounterClockwise(piece) {
-            const N = piece.shape.length;
-            const M = piece.shape[0].length;
+            const N = piece.shape.length; const M = piece.shape[0].length;
             const newShape = Array.from({ length: M }, () => Array(N).fill(0));
-            for (let r = 0; r < N; r++) {
-                for (let c = 0; c < M; c++) {
-                    if (piece.shape[r][c]) newShape[M - 1 - c][r] = piece.shape[r][c];
-                }
-            }
+            for (let r = 0; r < N; r++) { for (let c = 0; c < M; c++) { if (piece.shape[r][c]) newShape[M - 1 - c][r] = piece.shape[r][c]; } }
             piece.shape = newShape;
         }
         function checkCollision(piece, board, offsetX = 0, offsetY = 0) {
             const { shape, x: pieceX, y: pieceY } = piece;
-            const finalX = pieceX + offsetX;
-            const finalY = pieceY + offsetY;
+            const finalX = pieceX + offsetX; const finalY = pieceY + offsetY;
             for (let r = 0; r < shape.length; r++) {
                 for (let c = 0; c < shape[0].length; c++) {
                     if (shape[r][c]) {
-                        const boardX = finalX + c;
-                        const boardY = finalY + r;
+                        const boardX = finalX + c; const boardY = finalY + r;
                         if (boardX < 0 || boardX >= COLS || boardY >= ROWS || (boardY >= 0 && board[boardY] && board[boardY][boardX])) return true;
                     }
                 }
@@ -531,8 +551,7 @@
             currentPiece.shape.forEach((row, r) => {
                 row.forEach((value, c) => {
                     if (value) {
-                        const boardX = currentPiece.x + c;
-                        const boardY = currentPiece.y + r;
+                        const boardX = currentPiece.x + c; const boardY = currentPiece.y + r;
                         if (boardY >= 0 && boardY < ROWS && boardX >=0 && boardX < COLS) board[boardY][boardX] = currentPiece.color;
                     }
                 });
@@ -543,8 +562,7 @@
             let linesClearedThisTurn = 0;
             for (let r = ROWS - 1; r >= 0; ) {
                 if (board[r].every(cell => cell !== 0)) {
-                    linesClearedThisTurn++; linesCleared++;
-                    board.splice(r, 1); board.unshift(Array(COLS).fill(0));
+                    linesClearedThisTurn++; linesCleared++; board.splice(r, 1); board.unshift(Array(COLS).fill(0));
                 } else { r--; }
             }
             if (linesClearedThisTurn > 0) {
@@ -560,8 +578,7 @@
             }
         }
         function updateScore(clearedCount) {
-            const points = [0, 40, 100, 300, 1200];
-            score += points[clearedCount] * (level + 1);
+            const points = [0, 40, 100, 300, 1200]; score += points[clearedCount] * (level + 1);
             scoreElement.textContent = score;
         }
         function updateLevel() {
@@ -579,7 +596,7 @@
             linesClearedElement.textContent = linesCleared;
         }
 
-        // Drawing
+        // Drawing (mostly unchanged)
         function drawBlock(x, y, color, ctx = context, bs = BLOCK_SIZE) {
             ctx.fillStyle = color; ctx.fillRect(x * bs, y * bs, bs, bs);
             ctx.fillStyle = COLORS.PIECE_SHADOW;
@@ -625,7 +642,7 @@
          }
         let horizontalMoveTimeout;
         function movePiece(dx, dy) {
-            if (gameOver || paused || gameQuitted) return;
+            if (gameOver || paused || gameQuitted || isNameEntryActive) return; // Added isNameEntryActive check
             if (dx !== 0 && horizontalMoveTimeout) return;
             if (!checkCollision(currentPiece, board, dx, dy)) {
                 currentPiece.x += dx; currentPiece.y += dy;
@@ -642,7 +659,8 @@
         }
         let rotateTimeout;
         function attemptRotate(direction = 1) {
-            if (gameOver || paused || gameQuitted) return; if (rotateTimeout) return;
+            if (gameOver || paused || gameQuitted || isNameEntryActive) return; // Added isNameEntryActive check
+            if (rotateTimeout) return;
             const originalShape = currentPiece.shape.map(row => row.slice());
             const originalX = currentPiece.x; const originalY = currentPiece.y;
             if (direction === 1) rotate(currentPiece); else rotateCounterClockwise(currentPiece);
@@ -681,7 +699,7 @@
             scoreElement.textContent = score; levelElement.textContent = level; linesClearedElement.textContent = linesCleared;
             infoSinglesElement.textContent = singleLines; infoDoublesElement.textContent = doubleLines;
             infoTriplesElement.textContent = tripleLines; infoTetrisesElement.textContent = tetrisLines;
-            hideMessage(); hideBottomMessage();
+            hideMessage(); hideBottomMessage(); nameEntryInstructionsDiv.classList.add('hidden');
             highScoresDiv.classList.add('hidden'); gameContainer.classList.remove('hidden');
             startButton.textContent = "END GAME"; startButton.disabled = false;
             pauseButton.textContent = "PAUSE"; pauseButton.disabled = false;
@@ -738,7 +756,6 @@
             return false;
         }
 
-
         function endGame() {
             if (gameOver || gameQuitted) return; gameOver = true;
             if (gameLoopId) cancelAnimationFrame(gameLoopId);
@@ -758,8 +775,10 @@
 
             if (isScoreWorthy(score, level, linesCleared, currentStats)) {
                 isNameEntryActive = true;
+                nameEntryInstructionsDiv.classList.remove('hidden'); // Show name entry instructions for on-screen controls
                 enterName((name) => {
                     isNameEntryActive = false;
+                    nameEntryInstructionsDiv.classList.add('hidden'); // Hide them again
                     if (name) {
                         addHighScore("Most Points", name, score, currentStats);
                         addHighScore("Highest Level", name, level, currentStats);
@@ -801,8 +820,18 @@
         function showBottomMessage(text) { bottomMessageBox.innerHTML = text; bottomMessageBox.classList.remove('hidden'); }
         function hideBottomMessage() { bottomMessageBox.classList.add('hidden'); }
 
+        // Keyboard event listener
         document.addEventListener('keydown', (e) => {
-            if (isNameEntryActive || gameQuitted) return;
+            if (gameQuitted) return;
+            if (isNameEntryActive) {
+                // Let nameEntryKeyHandler deal with it, but prevent default for arrow keys if it's active
+                // to avoid scrolling page if game is embedded.
+                if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'enter', 'escape'].includes(e.key.toLowerCase())) {
+                    e.preventDefault();
+                }
+                // The actual logic is now in nameEntryKeyHandler, called by enterName
+                return;
+            }
             if (isHighScoreScreenActive) { handleHighScoreKeys(e); return; }
             if (gameOver && e.key.toLowerCase() !== 'enter' && !isNameEntryActive) return;
             if (!currentPiece && e.key.toLowerCase() !== 'enter' && !gameOver && !paused && !isNameEntryActive) return;
@@ -855,36 +884,60 @@
             }
         }
 
-        // D-Pad and Action Button Listeners
+        // D-Pad and Action Button Listeners (Multipurpose)
         dPadLeft.addEventListener('click', () => {
             if (gameQuitted) return;
-            if (isHighScoreScreenActive) handleHighScoreKeyPress('arrowleft');
-            else if (!isNameEntryActive) movePiece(-1, 0);
+            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'arrowleft', preventDefault: () => {}, stopPropagation: () => {} }); }
+            else if (isHighScoreScreenActive) { handleHighScoreKeyPress('arrowleft'); }
+            else { movePiece(-1, 0); }
         });
         dPadRight.addEventListener('click', () => {
             if (gameQuitted) return;
-            if (isHighScoreScreenActive) handleHighScoreKeyPress('arrowright');
-            else if (!isNameEntryActive) movePiece(1, 0);
+            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'arrowright', preventDefault: () => {}, stopPropagation: () => {} }); }
+            else if (isHighScoreScreenActive) { handleHighScoreKeyPress('arrowright'); }
+            else { movePiece(1, 0); }
+        });
+        dPadUp.addEventListener('click', () => {
+            if (gameQuitted) return;
+            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'arrowup', preventDefault: () => {}, stopPropagation: () => {} }); }
+            else if (!isHighScoreScreenActive) { attemptRotate(1); }
+        });
+        dPadDown.addEventListener('click', () => { // Changed from mousedown/up for consistency if name entry uses click
+            if (gameQuitted) return;
+            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'arrowdown', preventDefault: () => {}, stopPropagation: () => {} }); }
+            else if (!isHighScoreScreenActive && !paused && !gameOver) {
+                if (!isFastDropping) { isFastDropping = true; dropCounter = dropInterval; } // Simulate quick press
+                movePiece(0, 1);
+                // For tap-to-drop-one-step, we might not want to keep isFastDropping true.
+                // If you want continuous fast drop while holding, stick to mousedown/touchstart.
+                // For now, this makes it behave like a single keyboard press for name entry.
+                setTimeout(() => isFastDropping = false, 50); // Briefly allow fast drop if game is active
+            }
+        });
+
+        actionA.addEventListener('click', () => {
+            if (gameQuitted) return;
+            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'enter', preventDefault: () => {}, stopPropagation: () => {} }); } // 'A' acts as Enter/Next for name entry
+            else if (!isHighScoreScreenActive) { attemptRotate(-1); } // Original game action
         });
         actionB.addEventListener('click', () => {
             if (gameQuitted) return;
-            if (isHighScoreScreenActive) handleHighScoreKeyPress('b');
-            else if (!isNameEntryActive) attemptRotate(1);
+            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'b', preventDefault: () => {}, stopPropagation: () => {} }); } // 'B' acts as confirm for name entry (custom logic needed in handler)
+            else if (isHighScoreScreenActive) { handleHighScoreKeyPress('b'); }
+            else { attemptRotate(1); } // Original game action
         });
-        dPadUp.addEventListener('click', () => { if (!isHighScoreScreenActive && !isNameEntryActive && !gameQuitted) attemptRotate(1); });
-        actionA.addEventListener('click', () => { if (!isHighScoreScreenActive && !isNameEntryActive && !gameQuitted) attemptRotate(-1); });
 
-        const touchMoveHandler = (isDown) => {
+        // Touch events for dPadDown for fast dropping (gameplay only)
+        const dPadDownTouchHandler = (isDown) => {
             if (gameQuitted || paused || gameOver || isHighScoreScreenActive || isNameEntryActive) return;
             isFastDropping = isDown;
-            if (isDown) dropCounter = dropInterval; // Trigger move on next frame
+            if (isDown) dropCounter = dropInterval;
         };
-
-        dPadDown.addEventListener('mousedown', () => touchMoveHandler(true));
-        dPadDown.addEventListener('mouseup', () => touchMoveHandler(false));
-        dPadDown.addEventListener('mouseleave', () => touchMoveHandler(false));
-        dPadDown.addEventListener('touchstart', (e) => { e.preventDefault(); touchMoveHandler(true);}, { passive: false });
-        dPadDown.addEventListener('touchend', (e) => { e.preventDefault(); touchMoveHandler(false);}, { passive: false });
+        dPadDown.addEventListener('mousedown', () => dPadDownTouchHandler(true));
+        dPadDown.addEventListener('mouseup', () => dPadDownTouchHandler(false));
+        dPadDown.addEventListener('mouseleave', () => dPadDownTouchHandler(false));
+        dPadDown.addEventListener('touchstart', (e) => { e.preventDefault(); dPadDownTouchHandler(true);}, { passive: false });
+        dPadDown.addEventListener('touchend', (e) => { e.preventDefault(); dPadDownTouchHandler(false);}, { passive: false });
 
 
         // High Score Logic
@@ -897,6 +950,9 @@
             isHighScoreScreenActive = true;
             gameContainer.classList.add("hidden");
             highScoresDiv.classList.remove("hidden");
+            nameEntryInstructionsDiv.classList.add('hidden'); // Hide name entry instructions
+            highScoreInstructionsDiv.querySelectorAll('div:not(.name-entry-instructions)')
+                .forEach(el => el.classList.remove('hidden')); // Show normal HS instructions
             hideMessage(); hideBottomMessage();
 
             const category = highScoreCategories[currentCategoryIndex];
@@ -922,7 +978,7 @@
             });
 
             if (scoresToDisplay.length === 0) {
-                tableHTML += '<tr><td colspan="8" style="text-align:center;">No records yet for this category.</td></tr>';
+                tableHTML += '<tr><td colspan="8" style="text-align:center;">No records yet.</td></tr>';
             } else {
                 scoresToDisplay.forEach((scoreItem) => {
                     tableHTML += `
@@ -941,7 +997,8 @@
         function closeHighScores() {
             isHighScoreScreenActive = false;
             highScoresDiv.classList.add("hidden");
-            if (!gameQuitted) gameContainer.classList.remove("hidden"); // Don't show game if quitted
+            nameEntryInstructionsDiv.classList.add('hidden');
+            if (!gameQuitted) gameContainer.classList.remove("hidden");
             hideMessage();
             if (paused && !gameOver && !gameQuitted) { showMessage('PAUSED', 0, true); }
             else if (gameOver && !isNameEntryActive && !gameQuitted) { showBottomMessage("Press START or ENTER to Play!"); }
@@ -949,11 +1006,7 @@
             else { hideBottomMessage(); }
         }
 
-        function handleHighScoreKeys(e) {
-            e.preventDefault();
-            handleHighScoreKeyPress(e.key.toLowerCase());
-        }
-
+        function handleHighScoreKeys(e) { e.preventDefault(); handleHighScoreKeyPress(e.key.toLowerCase()); }
         function handleHighScoreKeyPress(keyAction) {
             if (gameQuitted) return;
             switch (keyAction) {
@@ -963,14 +1016,11 @@
                 case 'arrowright':
                     currentCategoryIndex = (currentCategoryIndex + 1) % highScoreCategories.length;
                     displayHighScores(); break;
-                case 'b': closeHighScores(); break;
+                case 'b': case 'escape': closeHighScores(); break; // B or Escape to close
             }
         }
-
         function addHighScore(category, name, valueOrDetailsObject, detailsObjectIfSeparate) {
-            let actualValue;
-            let actualDetails;
-
+            let actualValue; let actualDetails;
             if (typeof valueOrDetailsObject === 'object' && valueOrDetailsObject !== null && !detailsObjectIfSeparate) {
                 actualDetails = valueOrDetailsObject;
                 switch (category) {
@@ -982,17 +1032,10 @@
                     case "Most Single Lines": actualValue = actualDetails.singles; break;
                     default: actualValue = 0;
                 }
-            } else {
-                actualValue = valueOrDetailsObject;
-                actualDetails = detailsObjectIfSeparate;
-            }
-
+            } else { actualValue = valueOrDetailsObject; actualDetails = detailsObjectIfSeparate; }
             const newScore = { name, value: actualValue || 0, date: new Date().toLocaleDateString() };
             const detailKeys = ['level', 'points', 'lines', 'singles', 'doubles', 'triples', 'tetrises'];
-            detailKeys.forEach(key => {
-                newScore[key] = actualDetails[key] || 0;
-            });
-
+            detailKeys.forEach(key => { newScore[key] = actualDetails[key] || 0; });
             if (!highScores[category]) highScores[category] = [];
             highScores[category].push(newScore);
             highScores[category].sort((a, b) => (b.value || 0) - (a.value || 0));
@@ -1000,32 +1043,102 @@
             saveHighScores();
         }
 
+        // Name Entry Logic (modified to be callable by on-screen controls)
+        let currentNameForEntry = ["A", "A", "A"];
+        let currentNameIndex = 0;
+        let nameEntryCallback = null;
 
-        function enterName(callback) {
-            const name = ["A", "A", "A"]; let currentIndex = 0;
-            function updateNameDisplay() { showMessage(`GAME OVER!<br>Enter Name: ${name.join("")}<br>(↑/↓, Enter/→, ←, Esc to Skip)`, 0, true); }
-            function nameEntryKeyDown(e) {
-                if (!isNameEntryActive) { document.removeEventListener("keydown", nameEntryKeyDown, true); return; }
-                e.preventDefault(); e.stopPropagation();
-                switch(e.key.toLowerCase()) {
-                    case "arrowup": name[currentIndex] = String.fromCharCode(((name[currentIndex].charCodeAt(0) - 65 + 1) % 26) + 65); break;
-                    case "arrowdown": name[currentIndex] = String.fromCharCode(((name[currentIndex].charCodeAt(0) - 65 - 1 + 26) % 26) + 65); break;
-                    case "arrowleft": if (currentIndex > 0) currentIndex--; break;
-                    case "arrowright":
-                         if (currentIndex < 2) currentIndex++;
-                         else { document.removeEventListener("keydown", nameEntryKeyDown, true); callback(name.join("")); return; }
-                        break;
-                    case "enter":
-                        if (currentIndex < 2) currentIndex++;
-                        else { document.removeEventListener("keydown", nameEntryKeyDown, true); callback(name.join("")); return; }
-                        break;
-                    case "escape": document.removeEventListener("keydown", nameEntryKeyDown, true); callback(null); return;
-                }
-                updateNameDisplay();
+        function nameEntryKeyHandler(e) { // e is a simulated key event or a real one
+            if (!isNameEntryActive) return;
+            e.preventDefault(); e.stopPropagation();
+            let key = e.key.toLowerCase();
+
+            switch(key) {
+                case "arrowup":
+                    currentNameForEntry[currentNameIndex] = String.fromCharCode(((currentNameForEntry[currentNameIndex].charCodeAt(0) - 65 + 1) % 26) + 65);
+                    break;
+                case "arrowdown":
+                    currentNameForEntry[currentNameIndex] = String.fromCharCode(((currentNameForEntry[currentNameIndex].charCodeAt(0) - 65 - 1 + 26) % 26) + 65);
+                    break;
+                case "arrowleft":
+                    if (currentNameIndex > 0) currentNameIndex--;
+                    break;
+                case "arrowright": // D-Pad Right
+                case "enter":      // Action A
+                    if (currentNameIndex < 2) currentNameIndex++;
+                    else { // At last character, ArrowRight or Enter from D-Pad/A confirms
+                        finishNameEntry(currentNameForEntry.join(""));
+                        return;
+                    }
+                    break;
+                case "b": // Action B - used to confirm name if at the end, otherwise like enter/next char
+                    if (currentNameIndex === 2) { // Only confirm if at the last character
+                        finishNameEntry(currentNameForEntry.join(""));
+                        return;
+                    } else { // If not at the end, treat B like A (next character)
+                        if (currentNameIndex < 2) currentNameIndex++;
+                         else { // Should not happen if B is only confirm at end, but as fallback
+                            finishNameEntry(currentNameForEntry.join(""));
+                            return;
+                        }
+                    }
+                    break;
+                case "escape": // Keyboard only, for now
+                    finishNameEntry(null);
+                    return;
             }
-            document.addEventListener("keydown", nameEntryKeyDown, true);
             updateNameDisplay();
         }
+
+        function updateNameDisplay() {
+            if (!isNameEntryActive) return;
+            let displayName = "";
+            for(let i=0; i<3; i++) {
+                if (i === currentNameIndex) {
+                    displayName += `<u>${currentNameForEntry[i]}</u>`; // Underline current char
+                } else {
+                    displayName += currentNameForEntry[i];
+                }
+            }
+            showMessage(`GAME OVER!<br>Enter Name: ${displayName}<br>`, 0, true);
+            // Instructions for name entry are now part of high-score-instructions div
+        }
+
+        function finishNameEntry(nameStr) {
+            document.removeEventListener("keydown", nameEntryKeyHandler, true); // Remove if it was added
+            if (nameEntryCallback) {
+                nameEntryCallback(nameStr);
+                nameEntryCallback = null; // Clear callback
+            }
+            isNameEntryActive = false; // Ensure this is set
+            nameEntryInstructionsDiv.classList.add('hidden'); // Hide instructions
+             // Restore normal high score instructions visibility if high scores are active
+            if(isHighScoreScreenActive) {
+                 highScoreInstructionsDiv.querySelectorAll('div:not(.name-entry-instructions)')
+                .forEach(el => el.classList.remove('hidden'));
+            }
+        }
+
+        function enterName(callback) {
+            isNameEntryActive = true; // Moved here
+            currentNameForEntry = ["A", "A", "A"];
+            currentNameIndex = 0;
+            nameEntryCallback = callback;
+
+            // Show specific instructions for name entry
+            highScoreInstructionsDiv.querySelectorAll('div:not(.name-entry-instructions)')
+                .forEach(el => el.classList.add('hidden'));
+            nameEntryInstructionsDiv.classList.remove('hidden');
+
+            updateNameDisplay();
+            // The global keydown listener is complex. Let's manage its state explicitly.
+            // We don't add/remove the global one. Instead, the global one checks `isNameEntryActive`.
+            // If we were to add a specific listener, it would be:
+            // document.addEventListener("keydown", nameEntryKeyHandler, true);
+            // But the on-screen buttons now call nameEntryKeyHandler directly.
+            // The existing global keydown listener should now correctly defer to nameEntryKeyHandler when isNameEntryActive.
+        }
+
 
         document.getElementById("high-scores-button").addEventListener("click", () => {
             if (isNameEntryActive || gameQuitted) return;
@@ -1035,160 +1148,65 @@
             } else { closeHighScores(); }
         });
 
-        // Quit Game Functionality
         quitButton.addEventListener('click', () => {
             if (gameQuitted) return;
-            gameQuitted = true;
-            gameOver = true; // Treat as game over
-            paused = false; // Ensure not paused
-
+            gameQuitted = true; gameOver = true; paused = false;
             if (gameLoopId) cancelAnimationFrame(gameLoopId);
-
             if (audioInitialized && Tone.Transport.state !== "stopped") {
                 if (themeMusicSequence && themeMusicSequence.state !== "stopped") themeMusicSequence.stop(0);
                 Tone.Transport.stop(0);
             }
-
-            // Hide game elements
-            gameContainer.classList.add('hidden');
-            highScoresDiv.classList.add('hidden');
+            gameContainer.classList.add('hidden'); highScoresDiv.classList.add('hidden');
+            nameEntryInstructionsDiv.classList.add('hidden');
             hideBottomMessage();
-
-            // Show quit message
-            showMessage("Thanks for playing!<br>You can now close this window/tab.", 0, true);
-
-            // Disable buttons
-            startButton.disabled = true;
-            pauseButton.disabled = true;
-            muteButton.disabled = true;
-            quitButton.disabled = true;
+            showMessage("Thanks for playing!<br>You can close this window/tab.", 0, true);
+            startButton.disabled = true; pauseButton.disabled = true;
+            muteButton.disabled = true; quitButton.disabled = true;
             document.getElementById("high-scores-button").disabled = true;
-
-            // Try to clear canvas
-            context.fillStyle = COLORS.BACKGROUND;
-            context.fillRect(0, 0, canvas.width, canvas.height);
-            nextContext.fillStyle = COLORS.BACKGROUND;
-            nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
+            context.fillStyle = COLORS.BACKGROUND; context.fillRect(0, 0, canvas.width, canvas.height);
+            nextContext.fillStyle = COLORS.BACKGROUND; nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
         });
 
-
         // Responsive Scaling Logic
-        const GAME_DESIGN_WIDTH = 410; // Width of #gameboy-shell content + padding
-        const GAME_DESIGN_HEIGHT = 665; // Max height of #gameboy-shell (mobile layout has taller controls)
-                                         // Shell padding (40) + Bezel (30) + Title (25) +
-                                         // GameScreen (Media query height: 360+20+10+185+20 = 600 (approx for game content + info stacked))
-                                         // Actually, the media query #gameboy-screen height is for content *inside* the screen.
-                                         // Let's recalculate shell height more carefully.
-                                         // Shell: pad 20
-                                         //   Bezel: pad 15
-                                         //     Title: ~20
-                                         //     Screen (mobile): board (360) + pad_screen (20) + info_margin(10)+info(185) = ~575
-                                         //   Bezel: pad 15
-                                         // Controls: ~35 + margin 10 = 45
-                                         // Gameboy Controls (mobile, stacked): action(60) + gap(15) + dpad(120) + margin 20 = 215
-                                         // Shell: pad 20
-                                         // Total Height (mobile): 20+15+20+575+15+45+215+20 = 925. This is too tall for most phones.
-                                         // The CSS fixed heights need to be re-evaluated if the shell is to be shorter.
-                                         // For now, let's use a more common Gameboy-like height.
-                                         // Original gameboy screen height in CSS was 470px (desktop) / 490px (mobile media query).
-                                         // Let's take the desktop configuration as base, media query will adjust internally.
-                                         // Desktop Shell Height: 40(shell_pad) + 30(bezel_pad) + 25(title) + 430(screen) + 50(controls) + 140(gb_controls) = 715
-                                         // Let's set GAME_DESIGN_HEIGHT to target typical phone screen aspect ratios better.
-                                         // Let's aim for a shell height around 650-700px for design.
-                                         // Based on current CSS sizes:
-                                         // Width: 410 (screen 340 + bezel 30 + shell 40)
-                                         // Height (Desktop style controls): ShellP(40) + BezelP(30) + Title(20) + GameScreen(430) + Controls(45) + GameboyControls(140) = 705
-                                         // Height (Mobile style controls, game-info stacked):
-                                         //   GameScreen (mobile): board(360) + screen_pad(20) + title_header_in_bezel_already_counted + info(185 via media query changes) -> this is tricky.
-                                         //   The media query sets #gameboy-screen height to: `calc(360px + 20px + 10px + 185px + 20px)` = 595px
-                                         //   Height (Mobile): ShellP(40) + BezelP(30) + Title(20) + GameScreen_Mobile(595) + Controls(45) + GameboyControls_Stacked(215) = 945px
-                                         // This 945px is indeed too tall. The font sizes / padding inside need to shrink for such a design.
-                                         // The current fixed sizes are for a larger display.
-                                         // Given the fixed BLOCK_SIZE, the design is inherently quite tall for mobile.
-                                         // The scaling will shrink it, but it means text will become very small.
-                                         // For now, I'll use the desktop height as the design height. The mobile layout will make it taller, and the scaling will have to compensate more.
-                                         // This is a limitation of fixing BLOCK_SIZE and font sizes in pixels if the overall design is very tall.
-                                         // Using GAME_DESIGN_HEIGHT = 705 (desktop). The mobile layout will make the content exceed this,
-                                         // so the scale factor based on height will be smaller.
-        const EFFECTIVE_DESIGN_WIDTH = 410;
-        // The effective height depends on the media query.
-        // We need the scaler-wrapper to encompass the tallest possible layout.
-        // Tallest is mobile: ShellP(40) + Bezel(Padding 30 + Title 20 + GameScreenMobile 595 = 645) + Controls(45) + GBControlsStacked(215) + ShellP(0, already part of 40)
-        // So, 40 + 645 + 45 + 215 = 945.
-        // Let's use this for the wrapper, so the content never clips. It will mean more letterboxing in desktop view.
-        const EFFECTIVE_DESIGN_WIDTH_FINAL = 414; // Recalculated based on CSS
-        const EFFECTIVE_DESIGN_HEIGHT_FINAL = 944; // Recalculated based on CSS for mobile layout
-        // const EFFECTIVE_DESIGN_HEIGHT = 945;
-
+        const EFFECTIVE_DESIGN_WIDTH_FINAL = 414;
+        const EFFECTIVE_DESIGN_HEIGHT_FINAL = 944;
 
         function adjustGameScale() {
             const scalerWrapper = document.getElementById('scaler-wrapper');
             if (!scalerWrapper) return;
-
-            // Set the intrinsic size of the wrapper to our design dimensions
             scalerWrapper.style.width = EFFECTIVE_DESIGN_WIDTH_FINAL + 'px';
             scalerWrapper.style.height = EFFECTIVE_DESIGN_HEIGHT_FINAL + 'px';
-
-            // Get the actual available viewport size
-            // Using document.documentElement.clientWidth/Height is often more reliable
-            // for the visual viewport than window.innerWidth/Height on mobile.
             const availableWidth = document.documentElement.clientWidth;
             const availableHeight = document.documentElement.clientHeight;
-
             const scaleX = availableWidth / EFFECTIVE_DESIGN_WIDTH_FINAL;
             const scaleY = availableHeight / EFFECTIVE_DESIGN_HEIGHT_FINAL;
-            const scale = Math.min(scaleX, scaleY); // Use the smaller scale factor to fit content
-
-            // Apply the scale and center it
+            const scale = Math.min(scaleX, scaleY);
             scalerWrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
-
-            // Change body background for letterboxing if significant scaling occurs
-            // (This is just a visual preference)
-            // document.body.style.backgroundColor = (scale < 0.95 && (availableWidth > EFFECTIVE_DESIGN_WIDTH_FINAL * scale || availableHeight > EFFECTIVE_DESIGN_HEIGHT_FINAL * scale)) ? '#222' : '#d3d3d3';
-            // Simpler: if scaler background is d3d3d3, body is #222, letterboxing is automatic.
-
-
-            // scalerWrapper.style.width = EFFECTIVE_DESIGN_WIDTH + 'px';
-            // scalerWrapper.style.height = EFFECTIVE_DESIGN_HEIGHT + 'px';
-
-            // const { innerWidth, innerHeight } = window;
-            // const scaleX = innerWidth / EFFECTIVE_DESIGN_WIDTH;
-            // const scaleY = innerHeight / EFFECTIVE_DESIGN_HEIGHT;
-            // const scale = Math.min(scaleX, scaleY);
-
-            // scalerWrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
-            // document.body.style.backgroundColor = (scale < 0.95 && (innerWidth > EFFECTIVE_DESIGN_WIDTH * scale || innerHeight > EFFECTIVE_DESIGN_HEIGHT * scale)) ? '#222' : '#d3d3d3';
         }
-
 
         function initGame() {
             canvas.width = COLS * BLOCK_SIZE; canvas.height = ROWS * BLOCK_SIZE;
             nextCanvas.width = NEXT_COLS * BLOCK_SIZE * 0.8; nextCanvas.height = NEXT_ROWS * BLOCK_SIZE * 0.8;
-            context.scale(1, 1); nextContext.scale(1, 1); // Should be fine as BLOCK_SIZE is fixed.
+            context.scale(1, 1); nextContext.scale(1, 1);
             showBottomMessage("Press START or ENTER to Play!"); hideMessage();
+            nameEntryInstructionsDiv.classList.add('hidden');
             pauseButton.disabled = true; pauseButton.textContent = "PAUSE";
             muteButton.textContent = isMusicMuted ? "MUSIC: OFF" : "MUSIC: ON";
             board = createBoard(); drawBoard();
             nextContext.fillStyle = COLORS.BACKGROUND; nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
             isHighScoreScreenActive = false; isNameEntryActive = false;
             gameContainer.classList.remove('hidden'); highScoresDiv.classList.add('hidden');
-            gameQuitted = false; // Reset quit state
-            quitButton.disabled = false; // Re-enable quit button
+            gameQuitted = false;
+            startButton.disabled = false; /* Make sure start button is enabled */
+            quitButton.disabled = false;
             document.getElementById("high-scores-button").disabled = false;
-            adjustGameScale(); // Call here to set initial scale
+
+            adjustGameScale();
         }
 
-        // Initial setup
-        window.addEventListener('load', () => {
-            initGame(); // This now calls adjustGameScale
-            // adjustGameScale(); // Call scaling after initGame might have set up initial DOM structure
-        });
+        window.addEventListener('load', initGame);
         window.addEventListener('resize', adjustGameScale);
-        // Also consider orientationchange for mobile
-        window.addEventListener('orientationchange', () => {
-            // A small delay might be needed for the viewport dimensions to settle after orientation change
-            setTimeout(adjustGameScale, 100);
-        });
+        window.addEventListener('orientationchange', () => { setTimeout(adjustGameScale, 100); });
 
     </script>
 </body>
