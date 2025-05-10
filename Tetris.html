@@ -48,47 +48,54 @@
             box-sizing: border-box;
         }
 
+        #title-header {
+            font-size: 16px;
+            color: #0F380F;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
         #screen-bezel {
             background-color: #777;
-            padding: 15px;
+            padding: 15px; /* This is the dark gray border */
             border-radius: 8px;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
             margin-bottom: 20px;
-            width: calc(200px + 120px + 20px + 2*2px); /* board + info + screen padding + board border = 344px */
-            max-width: calc(100% - 30px);
+            width: 370px; /* Width of green screen (340px) + bezel L/R padding (30px) */
             box-sizing: border-box;
+            /* No flex needed, gameboy-shell's align-items:center will center this block */
         }
 
         #gameboy-screen {
             background-color: #9BBC0F;
-            padding: 10px;
+            padding: 10px; /* Internal padding for content inside the green screen */
             border: 2px solid #0F380F;
             border-radius: 5px;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* Center its direct children (game-container, high-scores) */
             box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
-            width: calc(200px + 120px + 20px); /* 340px */
-            height: calc(360px + 20px + 20px + 30px); /* Approx 430px for game content area (desktop) */
+            width: 100%; /* Fill the content area of screen-bezel */
+            /* Desktop height: (ROWS * BLOCK_SIZE for board) + (this screen's own top/bottom padding) */
+            height: calc( (18 * 20px) + (2 * 10px) ); /* 360px (board) + 20px (screen padding T/B) = 380px */
             overflow: hidden;
             position: relative;
             box-sizing: border-box;
         }
 
-
         #game-container {
             display: flex;
-            align-items: flex-start;
+            align-items: stretch; /* For desktop view (side-by-side), so game-info takes full height */
             width: 100%;
+            height: 100%;
         }
         #game-container.hidden {
             display: none !important;
         }
 
-
         #tetris-board {
             border: 2px solid #0F380F;
-            background-color: #9BBC0F;
+            /* background-color: #9BBC0F; /* Already set by gameboy-screen */
         }
 
         #game-info {
@@ -99,11 +106,10 @@
             color: #0F380F;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start;
+            justify-content: space-between; /* Distribute space for S/D/T/TET visibility */
             height: 100%;
             box-sizing: border-box;
         }
-
         #game-info div { margin-bottom: 5px; }
         #game-info span { display: block; text-align: right; padding-right: 5px; }
         #next-piece-container { margin-top: 8px; }
@@ -113,12 +119,10 @@
             display: block;
             margin-top: 3px;
         }
-
-        #title-header {
-            font-size: 16px;
-            color: #0F380F;
-            margin-bottom: 5px;
-            text-align: center;
+        #game-info hr {
+            border-color: #306230;
+            margin: 5px 0;
+            width: 100%;
         }
 
         /* System Controls (Start, Pause, etc.) */
@@ -127,12 +131,12 @@
             gap: 5px;
             flex-wrap: wrap;
             justify-content: center;
-            margin-top: 10px; /* Default margin */
+            margin-top: 10px;
             width: 100%;
-            max-width: 340px; /* Match screen bezel width roughly */
+            max-width: 340px;
         }
 
-        #controls button, .action-button { /* Keep .action-button here for general button styling if needed */
+        #controls button, .action-button { /* General style for game buttons */
             font-family: 'Press Start 2P', cursive;
             background-color: #555;
             color: #ddd;
@@ -158,8 +162,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 300px; /* Fixed width for desktop */
-            margin-top: 20px; /* Default margin */
+            width: 300px;
+            margin-top: 20px;
         }
 
         #d-pad {
@@ -190,10 +194,10 @@
 
         #action-buttons {
             display: flex;
-            flex-direction: column; /* A above B by default */
+            flex-direction: column;
             gap: 10px;
         }
-        /* Specific styling for .action-button used for A/B */
+        /* Specific style for A/B action buttons */
         #action-buttons .action-button {
             width: 60px; height: 60px; border-radius: 50%;
             background-color: #a04050; color: #fff;
@@ -271,16 +275,17 @@
             margin-top: 10px; font-size: 11px; text-align: center; line-height: 1.5;
         }
         #high-score-instructions div { margin-bottom: 3px; }
+        .name-entry-instructions { font-size: 10px; line-height: 1.3;}
 
-        /* Media query primarily for internal layout changes, scaling is handled by JS */
+
         @media (max-width: 600px) {
             #gameboy-screen {
-                /* Height adjustment for stacked game-info */
-                height: calc(360px + 20px + 10px + 185px + 20px); /* Board + top_pad + info_margin + info_approx_h + bottom_pad = 595px*/
+                /* Height of green box for mobile: board_H (360) + screen_padding_TB (20) + gameInfo_margin (10) + gameInfo_H (185) = 575px */
+                height: 575px;
             }
             #game-container {
                 flex-direction: column;
-                align-items: center; /* This should center the canvas and game-info block */
+                align-items: center;
             }
             #game-info {
                 width: 100%;
@@ -288,51 +293,49 @@
                 margin-top: 10px;
                 text-align: center;
                 height: auto;
+                justify-content: flex-start;
             }
             #game-info span { text-align: center; }
             #next-piece-container { margin: 10px auto; }
             #next-piece-canvas { margin: 5px auto; }
 
-            /* Ordering and styling for control groups */
-            #controls { /* System buttons: START, PAUSE, etc. */
-                order: 1; /* Below screen-bezel, but above main-game-inputs */
+            #controls {
+                order: 1;
                 margin-top: 15px;
-                /* width: 90%; Ensure it can wrap and center */
             }
             #controls button {
                 font-size: 9px;
-                padding: 7px 9px; /* Slightly smaller padding */
+                padding: 7px 9px;
             }
 
             #main-game-inputs {
-                order: 2; /* D-pad and A/B buttons below system controls */
-                width: 95%; /* More responsive width */
-                max-width: 340px; /* Cap width */
+                order: 2;
+                width: 95%;
+                max-width: 340px;
                 margin-top: 15px;
-                justify-content: space-around; /* Give a bit more space around than between */
+                justify-content: space-around;
             }
 
             #d-pad {
-                transform: scale(0.95); /* Slightly smaller */
+                transform: scale(0.95);
                 transform-origin: center;
             }
-            .d-pad-btn { /* Target buttons inside d-pad for size */
-                width: 38px;  /* Adjusted size */
-                height: 38px; /* Adjusted size */
-                font-size: 17px;/* Adjusted size */
+            .d-pad-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 17px;
             }
 
             #action-buttons {
-                flex-direction: column; /* Stack A/B vertically is default, ensure it for mobile if desired */
                 gap: 8px;
-                transform: scale(0.95); /* Slightly smaller */
+                transform: scale(0.95);
                 transform-origin: center;
             }
-            #action-buttons .action-button { /* Target A/B buttons for size */
-                width: 55px;  /* Adjusted size */
-                height: 55px; /* Adjusted size */
-                font-size: 18px; /* Adjusted size */
-                line-height: 51px; /* Adjusted line height */
+            #action-buttons .action-button {
+                width: 55px;
+                height: 55px;
+                font-size: 18px;
+                line-height: 51px;
             }
         }
     </style>
@@ -340,8 +343,8 @@
 <body>
     <div id="scaler-wrapper">
         <div id="gameboy-shell">
+            <div id="title-header">TETRIS</div> <!-- Title moved here -->
             <div id="screen-bezel">
-                <div id="title-header">TETRIS</div>
                 <div id="gameboy-screen">
                     <div id="game-container">
                         <canvas id="tetris-board"></canvas>
@@ -353,7 +356,7 @@
                                 NEXT:
                                 <canvas id="next-piece-canvas"></canvas>
                             </div>
-                            <hr style="border-color: #306230; margin: 5px 0;">
+                            <hr>
                             <div>SINGLE<span id="info-singles">0</span></div>
                             <div>DOUBLE<span id="info-doubles">0</span></div>
                             <div>TRIPLE<span id="info-triples">0</span></div>
@@ -364,9 +367,9 @@
                         <h2>High Scores</h2>
                         <div id="high-scores-content"></div>
                         <div id="high-score-instructions">
-                            <div>◀ D-Pad Left: Prev Cat.</div>
-                            <div>▶ D-Pad Right: Next Cat.</div>
-                            <div>'B' Button: Close</div>
+                            <div class="hs-nav-instructions">◀ D-Pad Left: Prev Cat.</div>
+                            <div class="hs-nav-instructions">▶ D-Pad Right: Next Cat.</div>
+                            <div class="hs-nav-instructions">'B' Button: Close</div>
                             <div class="name-entry-instructions hidden">
                                 D-Pad ↑↓: Change Letter<br>
                                 D-Pad → / 'A': Next Letter<br>
@@ -428,6 +431,8 @@
         const highScoresContent = document.getElementById('high-scores-content');
         const highScoreInstructionsDiv = document.getElementById('high-score-instructions');
         const nameEntryInstructionsDiv = highScoreInstructionsDiv.querySelector('.name-entry-instructions');
+        const hsNavInstructionsDivs = highScoreInstructionsDiv.querySelectorAll('.hs-nav-instructions');
+
 
         const dPadUp = document.getElementById('d-pad-up');
         const dPadLeft = document.getElementById('d-pad-left');
@@ -513,7 +518,7 @@
             }
         }
 
-        // Game Logic (mostly unchanged)
+        // Game Logic
         function createBoard() { return Array.from({ length: ROWS }, () => Array(COLS).fill(0)); }
         function getRandomPiece() {
             const randIndex = Math.floor(Math.random() * PIECE_KEYS.length);
@@ -596,7 +601,7 @@
             linesClearedElement.textContent = linesCleared;
         }
 
-        // Drawing (mostly unchanged)
+        // Drawing
         function drawBlock(x, y, color, ctx = context, bs = BLOCK_SIZE) {
             ctx.fillStyle = color; ctx.fillRect(x * bs, y * bs, bs, bs);
             ctx.fillStyle = COLORS.PIECE_SHADOW;
@@ -642,7 +647,7 @@
          }
         let horizontalMoveTimeout;
         function movePiece(dx, dy) {
-            if (gameOver || paused || gameQuitted || isNameEntryActive) return; // Added isNameEntryActive check
+            if (gameOver || paused || gameQuitted || isNameEntryActive) return;
             if (dx !== 0 && horizontalMoveTimeout) return;
             if (!checkCollision(currentPiece, board, dx, dy)) {
                 currentPiece.x += dx; currentPiece.y += dy;
@@ -659,7 +664,7 @@
         }
         let rotateTimeout;
         function attemptRotate(direction = 1) {
-            if (gameOver || paused || gameQuitted || isNameEntryActive) return; // Added isNameEntryActive check
+            if (gameOver || paused || gameQuitted || isNameEntryActive) return;
             if (rotateTimeout) return;
             const originalShape = currentPiece.shape.map(row => row.slice());
             const originalX = currentPiece.x; const originalY = currentPiece.y;
@@ -699,7 +704,10 @@
             scoreElement.textContent = score; levelElement.textContent = level; linesClearedElement.textContent = linesCleared;
             infoSinglesElement.textContent = singleLines; infoDoublesElement.textContent = doubleLines;
             infoTriplesElement.textContent = tripleLines; infoTetrisesElement.textContent = tetrisLines;
-            hideMessage(); hideBottomMessage(); nameEntryInstructionsDiv.classList.add('hidden');
+            hideMessage(); hideBottomMessage();
+            nameEntryInstructionsDiv.classList.add('hidden');
+            hsNavInstructionsDivs.forEach(el => el.classList.remove('hidden'));
+
             highScoresDiv.classList.add('hidden'); gameContainer.classList.remove('hidden');
             startButton.textContent = "END GAME"; startButton.disabled = false;
             pauseButton.textContent = "PAUSE"; pauseButton.disabled = false;
@@ -774,11 +782,7 @@
             };
 
             if (isScoreWorthy(score, level, linesCleared, currentStats)) {
-                isNameEntryActive = true;
-                nameEntryInstructionsDiv.classList.remove('hidden'); // Show name entry instructions for on-screen controls
                 enterName((name) => {
-                    isNameEntryActive = false;
-                    nameEntryInstructionsDiv.classList.add('hidden'); // Hide them again
                     if (name) {
                         addHighScore("Most Points", name, score, currentStats);
                         addHighScore("Highest Level", name, level, currentStats);
@@ -820,16 +824,10 @@
         function showBottomMessage(text) { bottomMessageBox.innerHTML = text; bottomMessageBox.classList.remove('hidden'); }
         function hideBottomMessage() { bottomMessageBox.classList.add('hidden'); }
 
-        // Keyboard event listener
         document.addEventListener('keydown', (e) => {
             if (gameQuitted) return;
             if (isNameEntryActive) {
-                // Let nameEntryKeyHandler deal with it, but prevent default for arrow keys if it's active
-                // to avoid scrolling page if game is embedded.
-                if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', 'enter', 'escape'].includes(e.key.toLowerCase())) {
-                    e.preventDefault();
-                }
-                // The actual logic is now in nameEntryKeyHandler, called by enterName
+                nameEntryKeyHandler(e);
                 return;
             }
             if (isHighScoreScreenActive) { handleHighScoreKeys(e); return; }
@@ -884,7 +882,6 @@
             }
         }
 
-        // D-Pad and Action Button Listeners (Multipurpose)
         dPadLeft.addEventListener('click', () => {
             if (gameQuitted) return;
             if (isNameEntryActive) { nameEntryKeyHandler({ key: 'arrowleft', preventDefault: () => {}, stopPropagation: () => {} }); }
@@ -902,32 +899,28 @@
             if (isNameEntryActive) { nameEntryKeyHandler({ key: 'arrowup', preventDefault: () => {}, stopPropagation: () => {} }); }
             else if (!isHighScoreScreenActive) { attemptRotate(1); }
         });
-        dPadDown.addEventListener('click', () => { // Changed from mousedown/up for consistency if name entry uses click
+        dPadDown.addEventListener('click', () => {
             if (gameQuitted) return;
             if (isNameEntryActive) { nameEntryKeyHandler({ key: 'arrowdown', preventDefault: () => {}, stopPropagation: () => {} }); }
             else if (!isHighScoreScreenActive && !paused && !gameOver) {
-                if (!isFastDropping) { isFastDropping = true; dropCounter = dropInterval; } // Simulate quick press
+                if (!isFastDropping) { isFastDropping = true; dropCounter = dropInterval; }
                 movePiece(0, 1);
-                // For tap-to-drop-one-step, we might not want to keep isFastDropping true.
-                // If you want continuous fast drop while holding, stick to mousedown/touchstart.
-                // For now, this makes it behave like a single keyboard press for name entry.
-                setTimeout(() => isFastDropping = false, 50); // Briefly allow fast drop if game is active
+                setTimeout(() => isFastDropping = false, 50);
             }
         });
 
         actionA.addEventListener('click', () => {
             if (gameQuitted) return;
-            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'enter', preventDefault: () => {}, stopPropagation: () => {} }); } // 'A' acts as Enter/Next for name entry
-            else if (!isHighScoreScreenActive) { attemptRotate(-1); } // Original game action
+            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'enter', preventDefault: () => {}, stopPropagation: () => {} }); }
+            else if (!isHighScoreScreenActive) { attemptRotate(-1); }
         });
         actionB.addEventListener('click', () => {
             if (gameQuitted) return;
-            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'b', preventDefault: () => {}, stopPropagation: () => {} }); } // 'B' acts as confirm for name entry (custom logic needed in handler)
+            if (isNameEntryActive) { nameEntryKeyHandler({ key: 'b', preventDefault: () => {}, stopPropagation: () => {} }); }
             else if (isHighScoreScreenActive) { handleHighScoreKeyPress('b'); }
-            else { attemptRotate(1); } // Original game action
+            else { attemptRotate(1); }
         });
 
-        // Touch events for dPadDown for fast dropping (gameplay only)
         const dPadDownTouchHandler = (isDown) => {
             if (gameQuitted || paused || gameOver || isHighScoreScreenActive || isNameEntryActive) return;
             isFastDropping = isDown;
@@ -940,7 +933,6 @@
         dPadDown.addEventListener('touchend', (e) => { e.preventDefault(); dPadDownTouchHandler(false);}, { passive: false });
 
 
-        // High Score Logic
         const highScoreCategories = ["Most Points", "Highest Level", "Most Tetrises", "Most Triple Lines", "Most Double Lines", "Most Single Lines"];
         let currentCategoryIndex = 0;
         let highScores = JSON.parse(localStorage.getItem("tetrisHighScores")) || highScoreCategories.reduce((acc, cat) => { acc[cat] = []; return acc; }, {});
@@ -950,9 +942,9 @@
             isHighScoreScreenActive = true;
             gameContainer.classList.add("hidden");
             highScoresDiv.classList.remove("hidden");
-            nameEntryInstructionsDiv.classList.add('hidden'); // Hide name entry instructions
-            highScoreInstructionsDiv.querySelectorAll('div:not(.name-entry-instructions)')
-                .forEach(el => el.classList.remove('hidden')); // Show normal HS instructions
+            nameEntryInstructionsDiv.classList.add('hidden');
+            hsNavInstructionsDivs.forEach(el => el.classList.remove('hidden'));
+
             hideMessage(); hideBottomMessage();
 
             const category = highScoreCategories[currentCategoryIndex];
@@ -998,6 +990,8 @@
             isHighScoreScreenActive = false;
             highScoresDiv.classList.add("hidden");
             nameEntryInstructionsDiv.classList.add('hidden');
+            hsNavInstructionsDivs.forEach(el => el.classList.remove('hidden'));
+
             if (!gameQuitted) gameContainer.classList.remove("hidden");
             hideMessage();
             if (paused && !gameOver && !gameQuitted) { showMessage('PAUSED', 0, true); }
@@ -1016,7 +1010,7 @@
                 case 'arrowright':
                     currentCategoryIndex = (currentCategoryIndex + 1) % highScoreCategories.length;
                     displayHighScores(); break;
-                case 'b': case 'escape': closeHighScores(); break; // B or Escape to close
+                case 'b': case 'escape': closeHighScores(); break;
             }
         }
         function addHighScore(category, name, valueOrDetailsObject, detailsObjectIfSeparate) {
@@ -1043,12 +1037,11 @@
             saveHighScores();
         }
 
-        // Name Entry Logic (modified to be callable by on-screen controls)
         let currentNameForEntry = ["A", "A", "A"];
         let currentNameIndex = 0;
         let nameEntryCallback = null;
 
-        function nameEntryKeyHandler(e) { // e is a simulated key event or a real one
+        function nameEntryKeyHandler(e) {
             if (!isNameEntryActive) return;
             e.preventDefault(); e.stopPropagation();
             let key = e.key.toLowerCase();
@@ -1063,27 +1056,27 @@
                 case "arrowleft":
                     if (currentNameIndex > 0) currentNameIndex--;
                     break;
-                case "arrowright": // D-Pad Right
-                case "enter":      // Action A
+                case "arrowright":
+                case "enter":
                     if (currentNameIndex < 2) currentNameIndex++;
-                    else { // At last character, ArrowRight or Enter from D-Pad/A confirms
+                    else {
                         finishNameEntry(currentNameForEntry.join(""));
                         return;
                     }
                     break;
-                case "b": // Action B - used to confirm name if at the end, otherwise like enter/next char
-                    if (currentNameIndex === 2) { // Only confirm if at the last character
+                case "b":
+                    if (currentNameIndex === 2) {
                         finishNameEntry(currentNameForEntry.join(""));
                         return;
-                    } else { // If not at the end, treat B like A (next character)
+                    } else {
                         if (currentNameIndex < 2) currentNameIndex++;
-                         else { // Should not happen if B is only confirm at end, but as fallback
+                         else {
                             finishNameEntry(currentNameForEntry.join(""));
                             return;
                         }
                     }
                     break;
-                case "escape": // Keyboard only, for now
+                case "escape":
                     finishNameEntry(null);
                     return;
             }
@@ -1095,48 +1088,32 @@
             let displayName = "";
             for(let i=0; i<3; i++) {
                 if (i === currentNameIndex) {
-                    displayName += `<u>${currentNameForEntry[i]}</u>`; // Underline current char
+                    displayName += `<span style="text-decoration: underline;">${currentNameForEntry[i]}</span>`;
                 } else {
                     displayName += currentNameForEntry[i];
                 }
             }
             showMessage(`GAME OVER!<br>Enter Name: ${displayName}<br>`, 0, true);
-            // Instructions for name entry are now part of high-score-instructions div
         }
 
         function finishNameEntry(nameStr) {
-            document.removeEventListener("keydown", nameEntryKeyHandler, true); // Remove if it was added
             if (nameEntryCallback) {
                 nameEntryCallback(nameStr);
-                nameEntryCallback = null; // Clear callback
+                nameEntryCallback = null;
             }
-            isNameEntryActive = false; // Ensure this is set
-            nameEntryInstructionsDiv.classList.add('hidden'); // Hide instructions
-             // Restore normal high score instructions visibility if high scores are active
-            if(isHighScoreScreenActive) {
-                 highScoreInstructionsDiv.querySelectorAll('div:not(.name-entry-instructions)')
-                .forEach(el => el.classList.remove('hidden'));
-            }
+            isNameEntryActive = false;
+            nameEntryInstructionsDiv.classList.add('hidden');
+            hsNavInstructionsDivs.forEach(el => el.classList.remove('hidden'));
         }
 
         function enterName(callback) {
-            isNameEntryActive = true; // Moved here
+            isNameEntryActive = true;
             currentNameForEntry = ["A", "A", "A"];
             currentNameIndex = 0;
             nameEntryCallback = callback;
-
-            // Show specific instructions for name entry
-            highScoreInstructionsDiv.querySelectorAll('div:not(.name-entry-instructions)')
-                .forEach(el => el.classList.add('hidden'));
+            hsNavInstructionsDivs.forEach(el => el.classList.add('hidden'));
             nameEntryInstructionsDiv.classList.remove('hidden');
-
             updateNameDisplay();
-            // The global keydown listener is complex. Let's manage its state explicitly.
-            // We don't add/remove the global one. Instead, the global one checks `isNameEntryActive`.
-            // If we were to add a specific listener, it would be:
-            // document.addEventListener("keydown", nameEntryKeyHandler, true);
-            // But the on-screen buttons now call nameEntryKeyHandler directly.
-            // The existing global keydown listener should now correctly defer to nameEntryKeyHandler when isNameEntryActive.
         }
 
 
@@ -1167,7 +1144,6 @@
             nextContext.fillStyle = COLORS.BACKGROUND; nextContext.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
         });
 
-        // Responsive Scaling Logic
         const EFFECTIVE_DESIGN_WIDTH_FINAL = 414;
         const EFFECTIVE_DESIGN_HEIGHT_FINAL = 944;
 
@@ -1187,9 +1163,12 @@
         function initGame() {
             canvas.width = COLS * BLOCK_SIZE; canvas.height = ROWS * BLOCK_SIZE;
             nextCanvas.width = NEXT_COLS * BLOCK_SIZE * 0.8; nextCanvas.height = NEXT_ROWS * BLOCK_SIZE * 0.8;
-            context.scale(1, 1); nextContext.scale(1, 1);
+            // context.scale(1, 1); nextContext.scale(1, 1); // Not needed if BLOCK_SIZE is used directly
+
             showBottomMessage("Press START or ENTER to Play!"); hideMessage();
             nameEntryInstructionsDiv.classList.add('hidden');
+            hsNavInstructionsDivs.forEach(el => el.classList.remove('hidden'));
+
             pauseButton.disabled = true; pauseButton.textContent = "PAUSE";
             muteButton.textContent = isMusicMuted ? "MUSIC: OFF" : "MUSIC: ON";
             board = createBoard(); drawBoard();
@@ -1197,7 +1176,7 @@
             isHighScoreScreenActive = false; isNameEntryActive = false;
             gameContainer.classList.remove('hidden'); highScoresDiv.classList.add('hidden');
             gameQuitted = false;
-            startButton.disabled = false; /* Make sure start button is enabled */
+            startButton.disabled = false;
             quitButton.disabled = false;
             document.getElementById("high-scores-button").disabled = false;
 
