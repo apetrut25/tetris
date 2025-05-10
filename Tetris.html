@@ -29,12 +29,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>    
     <style>
+        html {
+            height: 100%; /* Ensure html element takes full height */
+            overflow: hidden; /* Prevent scroll on html too */
+        }
+
         body {
             background-color: #222; /* Neutral background for letterboxing */
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh; /* Use 100vh for full viewport height */
+            /* Use 100% of html, which should be visual viewport after html fix */
+            width: 100%;
+            height: 100%;
             margin: 0;
             font-family: 'Press Start 2P', cursive;
             color: #0F380F;
@@ -43,13 +50,15 @@
         }
 
         #scaler-wrapper {
-            /* Dimensions will be set by JS to GAME_DESIGN_WIDTH/HEIGHT */
-            position: absolute;
+            /* Dimensions will be set by JS to EFFECTIVE_DESIGN_WIDTH/HEIGHT */
+            position: absolute; /* Keeps it from affecting body flow if body is flex */
             left: 50%;
             top: 50%;
             transform-origin: center center;
             /* transform: translate(-50%, -50%) scale(var(--scale-factor)); Will be set by JS */
             background-color: #d3d3d3; /* Original body background, now on wrapper */
+            /* Overflow hidden on the wrapper can help if content slightly bleeds during scaling calc */
+            overflow: hidden;
         }
 
         #gameboy-shell {
@@ -1107,23 +1116,48 @@
         // Tallest is mobile: ShellP(40) + Bezel(Padding 30 + Title 20 + GameScreenMobile 595 = 645) + Controls(45) + GBControlsStacked(215) + ShellP(0, already part of 40)
         // So, 40 + 645 + 45 + 215 = 945.
         // Let's use this for the wrapper, so the content never clips. It will mean more letterboxing in desktop view.
-        const EFFECTIVE_DESIGN_HEIGHT = 945;
+        const EFFECTIVE_DESIGN_WIDTH_FINAL = 414; // Recalculated based on CSS
+        const EFFECTIVE_DESIGN_HEIGHT_FINAL = 944; // Recalculated based on CSS for mobile layout
+        // const EFFECTIVE_DESIGN_HEIGHT = 945;
 
 
         function adjustGameScale() {
             const scalerWrapper = document.getElementById('scaler-wrapper');
             if (!scalerWrapper) return;
 
-            scalerWrapper.style.width = EFFECTIVE_DESIGN_WIDTH + 'px';
-            scalerWrapper.style.height = EFFECTIVE_DESIGN_HEIGHT + 'px';
+            // Set the intrinsic size of the wrapper to our design dimensions
+            scalerWrapper.style.width = EFFECTIVE_DESIGN_WIDTH_FINAL + 'px';
+            scalerWrapper.style.height = EFFECTIVE_DESIGN_HEIGHT_FINAL + 'px';
 
-            const { innerWidth, innerHeight } = window;
-            const scaleX = innerWidth / EFFECTIVE_DESIGN_WIDTH;
-            const scaleY = innerHeight / EFFECTIVE_DESIGN_HEIGHT;
-            const scale = Math.min(scaleX, scaleY);
+            // Get the actual available viewport size
+            // Using document.documentElement.clientWidth/Height is often more reliable
+            // for the visual viewport than window.innerWidth/Height on mobile.
+            const availableWidth = document.documentElement.clientWidth;
+            const availableHeight = document.documentElement.clientHeight;
 
+            const scaleX = availableWidth / EFFECTIVE_DESIGN_WIDTH_FINAL;
+            const scaleY = availableHeight / EFFECTIVE_DESIGN_HEIGHT_FINAL;
+            const scale = Math.min(scaleX, scaleY); // Use the smaller scale factor to fit content
+
+            // Apply the scale and center it
             scalerWrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
-            document.body.style.backgroundColor = (scale < 0.95 && (innerWidth > EFFECTIVE_DESIGN_WIDTH * scale || innerHeight > EFFECTIVE_DESIGN_HEIGHT * scale)) ? '#222' : '#d3d3d3';
+
+            // Change body background for letterboxing if significant scaling occurs
+            // (This is just a visual preference)
+            // document.body.style.backgroundColor = (scale < 0.95 && (availableWidth > EFFECTIVE_DESIGN_WIDTH_FINAL * scale || availableHeight > EFFECTIVE_DESIGN_HEIGHT_FINAL * scale)) ? '#222' : '#d3d3d3';
+            // Simpler: if scaler background is d3d3d3, body is #222, letterboxing is automatic.
+
+
+            // scalerWrapper.style.width = EFFECTIVE_DESIGN_WIDTH + 'px';
+            // scalerWrapper.style.height = EFFECTIVE_DESIGN_HEIGHT + 'px';
+
+            // const { innerWidth, innerHeight } = window;
+            // const scaleX = innerWidth / EFFECTIVE_DESIGN_WIDTH;
+            // const scaleY = innerHeight / EFFECTIVE_DESIGN_HEIGHT;
+            // const scale = Math.min(scaleX, scaleY);
+
+            // scalerWrapper.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            // document.body.style.backgroundColor = (scale < 0.95 && (innerWidth > EFFECTIVE_DESIGN_WIDTH * scale || innerHeight > EFFECTIVE_DESIGN_HEIGHT * scale)) ? '#222' : '#d3d3d3';
         }
 
 
@@ -1141,14 +1175,20 @@
             gameQuitted = false; // Reset quit state
             quitButton.disabled = false; // Re-enable quit button
             document.getElementById("high-scores-button").disabled = false;
+            adjustGameScale(); // Call here to set initial scale
         }
 
         // Initial setup
         window.addEventListener('load', () => {
-            initGame();
-            adjustGameScale(); // Call scaling after initGame might have set up initial DOM structure
+            initGame(); // This now calls adjustGameScale
+            // adjustGameScale(); // Call scaling after initGame might have set up initial DOM structure
         });
         window.addEventListener('resize', adjustGameScale);
+        // Also consider orientationchange for mobile
+        window.addEventListener('orientationchange', () => {
+            // A small delay might be needed for the viewport dimensions to settle after orientation change
+            setTimeout(adjustGameScale, 100);
+        });
 
     </script>
 </body>
