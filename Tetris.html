@@ -4,8 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Game Boy Tetris - Mobile</title>
+    <!-- iOS Specific Meta Tags for "Add to Home Screen" -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"> <!-- or "default", "black" -->
+    <meta name="apple-mobile-web-app-title" content="Tetris GB"> <!-- Title for the app icon -->
+
+    <!-- App Icons (VERY IMPORTANT for a good look) -->
+    <!-- Create icons of these sizes and place them in your game's root directory or an /icons/ folder -->
+    <link rel="apple-touch-icon" href="apple-touch-icon-57x57.png"> <!-- For non-Retina iPhone (iOS <= 6) -->
+    <link rel="apple-touch-icon" sizes="72x72" href="apple-touch-icon-72x72.png"> <!-- For non-Retina iPad (iOS <= 6) -->
+    <link rel="apple-touch-icon" sizes="76x76" href="apple-touch-icon-76x76.png"> <!-- For non-Retina iPad (iOS >= 7) -->
+    <link rel="apple-touch-icon" sizes="114x114" href="apple-touch-icon-114x114.png"> <!-- For Retina iPhone (iOS <= 6) -->
+    <link rel="apple-touch-icon" sizes="120x120" href="apple-touch-icon-120x120.png"> <!-- For Retina iPhone (iOS >= 7) -->
+    <link rel="apple-touch-icon" sizes="144x144" href="apple-touch-icon-144x144.png"> <!-- For Retina iPad (iOS <= 6) -->
+    <link rel="apple-touch-icon" sizes="152x152" href="apple-touch-icon-152x152.png"> <!-- For Retina iPad (iOS >= 7) -->
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon-180x180.png"> <!-- For iPhone 6 Plus, 6s Plus, 7 Plus, 8 Plus -->
+    <!-- You can also add a general one, iOS will pick the best match -->
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+
+    <!-- (Optional but good practice) Web App Manifest -->
+    <link rel="manifest" href="manifest.json">
+
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>    
     <style>
         body {
             background-color: #222; /* Neutral background for letterboxing */

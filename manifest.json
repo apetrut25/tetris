@@ -1,0 +1,22 @@
+{
+  "name": "Game Boy Tetris",
+  "short_name": "Tetris GB",
+  "description": "A Game Boy style Tetris game.",
+  "start_url": "./tetris.html", /* Adjust to your main HTML file */
+  "display": "standalone", /* or "fullscreen" */
+  "background_color": "#d3d3d3",
+  "theme_color": "#8c8c8c",
+  "icons": [
+    {
+      "src": "apple-touch-icon-120x120.png", /* Example, use your icon paths */
+      "sizes": "120x120",
+      "type": "image/png"
+    },
+    {
+      "src": "apple-touch-icon-180x180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+    /* Add more icon sizes as needed */
+  ]
+}
